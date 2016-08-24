@@ -2,12 +2,13 @@ class Board
   attr_accessor :cells
 
   def initialize
-    @cells = Array.new(9, " ")
+    self.reset!
   end
 
   def display
     line = "-----------"
-    puts " #{@cells[0]} | #{@cells[1]} | #{@cells[2]} "
+
+    puts "\n" + " #{@cells[0]} | #{@cells[1]} | #{@cells[2]} "
     puts line
     puts " #{@cells[3]} | #{@cells[4]} | #{@cells[5]} "
     puts line
@@ -18,10 +19,6 @@ class Board
     @cells = Array.new(9, " ")
   end
 
-  def position(input)
-    @cells[input.to_i - 1]
-  end
-
   def turn_count
     count = 0
     @cells.each do |cell|
@@ -30,6 +27,10 @@ class Board
       end
     end
     count
+  end
+
+  def position(input)
+    @cells[input.to_i - 1]
   end
 
   def taken?(input)

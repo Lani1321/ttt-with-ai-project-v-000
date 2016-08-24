@@ -1,14 +1,21 @@
 module Players
   class Computer < Player
 
+    def determine_opponent
+      if self.token == "X"
+        opponent_token = "O"
+      else
+        opponent_token = "X"
+      end
+      opponent_token
+    end
+
     def move(board)
-      count = board.turn_count
-  		case count
-      when 0 || 1
+      if board.turn_count == 0 || board.turn_count == 1
         first_move(board)
-      when 2 || 3
+      elsif board.turn_count == 2 || board.turn_count == 0
         second_move(board)
-      when count > 3
+      else
         finish_moves(board)
       end
     end
@@ -16,79 +23,59 @@ module Players
     def first_move(board)
       if !board.taken?("5")
         input = "5"
-      else board.turn_count == 1
+      else
         input = ["1", "3", "7", "9"].sample
       end
+      input
     end
 
     def second_move(board)
-      if game.player_1 == self && board.turn_count == 2
+      if self.token == "X"
         input = ["1", "3", "7", "9"].sample
-        if board.valid_move?(input)
-          input
-        else
-          moves = ["1", "3", "7", "9"].reject(input)
-          input = moves.sample
+        until board.valid_move?(input)
+        input = ["1", "3", "7", "9"].sample
         end
-
-      elsif game.player_2 == self && turn_count == 3
-        if !win_check(board).nil?
-          win_space = win_check(board)
-          input = (win_space + 1).to_s
-        elsif !block_check(board).nil?
-          block_space = block_check(board)
-          input = (block_space + 1).to_s
-        else
-          valid = board.cells.detect {|cell| !cell.taken?}
-          input = (valid + 1).to_s
-        end
+        input
+      elsif self.token == "O"
+        finish_moves(board)
       end
     end
 
     def finish_moves(board)
-      if !win_check(board).nil?
-        win_space = win_check(board)
-        input = (win_space + 1).to_s
-      elsif !block_check(board).nil?
-        block_space = block_check(board)
-        input = (block_space + 1).to_s
+      if win_space(board) != nil
+        win_space(board)
+      elsif block_space(board) != nil
+        block_space(board)
       else
-        valid = board.cells.detect {|cell| !cell.taken?}
-        input = (valid + 1).to_s
+        input = ["1", "2", "3", "4", "5", "6", "7", "8", "9"].detect {|cell| !board.taken?(cell)}
       end
     end
 
-    def block_check(board)
-      enemy_token = nil
-      if self.token == "X"
-        enemy_token = "O"
-      else
-        enemy_token = "X"
+    def win_check(board, token_to_check)
+      token = token_to_check
+      win_opportunity = []
+      win_opportunity << Game::WIN_COMBINATIONS.detect do |combo|
+        (token == board.cells[combo[0]] && board.cells[combo[0]] == board.cells[combo[1]] && !board.taken?("#{combo[2] + 1}")) || (token == board.cells[combo[1]] && board.cells[combo[1]] == board.cells[combo[2]] && !board.taken?("#{combo[0] + 1}")) || (token == board.cells[combo[0]]  && board.cells[combo[0]] == board.cells[combo[2]] && !board.taken?("#{combo[1] + 1}"))
       end
+      win_opportunity.flatten
+    end
 
-      block_opportunity = []
-      block_opportunity << Game.WIN_COMBINATIONS.detect do |combo|
-        (enemy_token == board.cells[combo[0]] && board.cells[combo[0]] == board.cells[combo[1]] && !board.cells[combo[2]].taken?) || (!board.cells[combo[0]].taken? && board.cells[combo[1]] == board.cells[combo[2]] && board.cells[combo[1]] == enemy_token) || (!board.cells[combo[1]].taken? && board.cells[combo[0]] == enemy_tokenn && board.cells[combo[0]] == board.cells[combo[2]])
-      end
-
-      if block_opportunity.size == 1
-        block_space = block_opportunity.detect {|cell| !cell.taken?}
-      elsif block_opportunity.size > 1
-        block_space = block_opportunity.first.detect {|cell| !cell.taken?}
+    def win_space(board)
+      if win_check(board, self.token) != [nil]
+        win = win_check(board, self.token)
+        cell = win.detect {|cell| !board.taken?("#{cell + 1}")}
+        input = "#{cell + 1}"
       else
         nil
       end
     end
 
-    def win_check(board)
-      win_opportunity = []
-      win_opportunity << Game.WIN_COMBINATIONS.detect do |combo|
-        (self.token == board.cells[combo[0]] && board.cells[combo[0]] == board.cells[combo[1]] && !board.cells[combo[2]].taken?) || (!board.cells[combo[0]].taken? && board.cells[combo[1]] == board.cells[combo[2]] && board.cells[combo[1]] == self.token) || (!board.cells[combo[1]].taken? && board.cells[combo[0]] == self.token && board.cells[combo[0]] == board.cells[combo[2]])
-      end
-      if win_opportunity.size == 1
-        win_space = win_opportunity.detect {|cell| !cell.taken?}
-      elsif block_opportunity.size > 1
-        win_space = win_opportunity.first.detect {|cell| !cell.taken?}
+    def block_space(board)
+      opponent_token = self.determine_opponent
+      if win_check(board, token_to_check = opponent_token) != [nil]
+        block = win_check(board, token_to_check = opponent_token)
+        cell = block.detect {|cell| !board.taken?("#{cell + 1}")}
+        input = "#{cell + 1}"
       else
         nil
       end

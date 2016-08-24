@@ -13,10 +13,34 @@ class Game
     [0,4,8]
   ]
 
+#game setup
+
   def initialize(player_1 = Players::Human.new("X"), player_2 = Players::Human.new("O"), board = Board.new)
     @player_1 = player_1
     @player_2 = player_2
     @board = board
+  end
+
+
+  def self.zero_player
+    self.new(player_1 = Players::Computer.new("X"), player_2 = Players::Computer.new("O"))
+  end
+
+  def self.one_player
+    puts "Who should go first? Please enter '1' for the human player or '2' for the computer"
+    first_player = gets.strip
+    if first_player == "1"
+      puts "You are Player X!"
+      self.new(player_1 = Players::Human.new("X"), player_2 = Players::Computer.new("O"))
+    elsif first_player == "2"
+      puts "You are Player 0!"
+      self.new(player_1 = Players::Computer.new("X"), player_2 = Players::Human.new("O"))
+    end
+  end
+
+  def self.two_player
+    puts "Player 1 is X and Player 2 is O"
+    self.new
   end
 
 #game management methods
@@ -25,7 +49,7 @@ class Game
     until self.over?
       self.turn
     end
-    if self.won?
+    if self.over? && self.won?
       puts "Congratulations #{winner}!"
     else
       puts "Cats Game!"
@@ -33,14 +57,20 @@ class Game
   end
 
   def turn
-    input = current_player.move(board)
-    if @board.valid_move?(input)
-      board.update(input, current_player)
+    current = self.current_player
+    current_move = self.current_player.move(@board)
+    if @board.valid_move?(current_move)
+      @board.update(current_move, current_player)
+      @board.display
+      puts ""
+      puts "Player #{current.token} made a move."
+      puts ""
     else
-      puts "invalid"
-      self.turn
+      puts "Invalid move."
+      turn
     end
   end
+
 
 #game status methods
 
@@ -49,7 +79,7 @@ class Game
   end
 
   def over?
-    draw? || won?
+    self.draw? || self.won?
   end
 
   def won?
