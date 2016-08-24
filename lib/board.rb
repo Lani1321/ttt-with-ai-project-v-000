@@ -2,8 +2,8 @@
 class Board
   attr_accessor :cells
 
-  def initialize           
-    @cells = Array.new(9, " ")
+  def initialize
+    self.reset!
   end
 
   def reset!
@@ -11,7 +11,7 @@ class Board
   end
 
   def display
-    puts "\n"      
+    puts "\n"
     puts " #{cells[0]} | #{cells[1]} | #{cells[2]} "
     puts "-----------"
     puts " #{cells[3]} | #{cells[4]} | #{cells[5]} "
@@ -22,7 +22,7 @@ class Board
  def full?
     @cells.all?{|token| token == "X" || token == "O"}
   end
-  
+
  def position(input)
     @cells[input.to_i - 1]
   end
@@ -52,4 +52,3 @@ class Board
 
 
 end
-
