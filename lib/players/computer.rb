@@ -1,12 +1,12 @@
 module Players
   class Computer < Player
+
     def move(board)
       move = nil
       if !board.taken?(5)
         move = "5"
-      elsif !board.taken?(1)
-        move = [1, 3, 7, 9].detect{|index| !board.taken?(index)}
-
+      elsif move == nil && board.turn_count < 3
+        move = [1, 3, 7, 9].shuffle.detect{|index| !board.taken?(index)}
       else
         Game::WIN_COMBINATIONS.detect do |combo|
           if combo.select{|i| board.position(i+1) == token}.size == 2 && combo.any?{|i| board.position(i+1) == " "}
@@ -19,5 +19,6 @@ module Players
       end
       move
     end
+
   end
 end
