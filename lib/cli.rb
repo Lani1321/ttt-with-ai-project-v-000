@@ -1,6 +1,6 @@
-class Cli
+class CommandLineInterface
 
-  attr_accessor :continue
+  attr_accessor :continue, :game
 
   def initialize (continue = "y")
     @continue = continue
@@ -11,7 +11,6 @@ class Cli
     session = self.new
     puts "Let's play Tic Tac Toe!"
     until session.continue == "n" || session.continue == "N"
-      session.pick_players
       session.initialize_game
       session.play_game
       session.end_game
@@ -33,24 +32,27 @@ class Cli
       puts "Please enter 0, 1, or 2 to start your game."
       input = gets.strip
     end
+    input
   end
 
   def initialize_game
-    players = game_setup
+    players = pick_players
 
     case players
     when players = "0"
-      game = Game.zero_player_start
+      @game = Game.zero_player_start
     when players = "1"
-      game = Game.one_player_start
+      @game = Game.one_player_start
     when players = "2"
-      game = Game.two_player_start
+      @game = Game.two_player_start
     end
   end
 
   def play_game
-    game.board.display
-    game.play
+    if game.player_1.class == Players::Human
+      @game.board.display
+    end
+    @game.play
   end
 
   def end_game
@@ -62,7 +64,7 @@ class Cli
       puts "Please type 'y' to play again or 'n' to exit"
       input = gets.strip
     end
-    self.decision = input
+    self.continue = input
   end
 
 end
