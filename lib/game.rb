@@ -22,11 +22,11 @@ class Game
   end
 
 
-  def self.zero_player
+  def self.zero_player_start
     self.new(player_1 = Players::Computer.new("X"), player_2 = Players::Computer.new("O"))
   end
 
-  def self.one_player
+  def self.one_player_start
     puts "Who should go first? Please enter '1' for the human player or '2' for the computer"
     first_player = gets.strip
     if first_player == "1"
@@ -38,7 +38,7 @@ class Game
     end
   end
 
-  def self.two_player
+  def self.two_player_start
     puts "Player 1 is X and Player 2 is O"
     self.new
   end
